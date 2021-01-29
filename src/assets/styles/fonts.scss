@@ -1,0 +1,28 @@
+@font-face {
+  font-display: swap;
+  font-family: SFUIText;
+  src: url('./fonts/SFUIText-Bold.ttf') format('woff');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: SFUIText;
+  src: url('./fonts/SFUIText-Light.ttf') format('woff');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: SFUIText;
+  src: url('./fonts/SFUIText-Regular.ttf') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+#app {
+  font-family: SFUIText;
+}

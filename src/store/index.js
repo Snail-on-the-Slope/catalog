@@ -1,61 +1,94 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import json from '../assets/data/data.json'
+import items from '../assets/data/items.json'
+import materials from '../assets/data/materials.json'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        libraries: [],
-        librarieById: null,
-        typeLibraries: {},
+        catalog: [],
+        materials: [],
+        typeCatalog: [],
+        sortPriceType: 'all',
+        sortMaterialType: 'all'
     },
     mutations: {
-        updateLibraries(state, data) {
-            data.forEach(e => state.libraries.push(e.data.general))
+        updateCatalog(state, data) {
+            state.catalog = data
         },
-        updateLibrarieById(state, id) {
-            state.librarieById = null;
-            state.librarieById = state.libraries.filter(
-                e => e.id == id
-            )[0];
+
+        updateMaterial(state, data) {
+            state.materials = data
         },
-        sortLibraries(state, info) {
-            info[0] ?
-                (state.libraries.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)),
-                    info[1] !== 'all' ? state.typeLibraries[info[1]].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)) : '') :
-                (state.libraries.sort((a, b) => (a.name > b.name) ? -1 : ((b.name > a.name) ? 1 : 0)),
-                    info[1] !== 'all' ? state.typeLibraries[info[1]].sort((a, b) => (a.name > b.name) ? -1 : ((b.name > a.name) ? 1 : 0)) : '');
+
+        sortCatalog(state, info) {
+            info === "all" ? "" :
+                info === "increase" ?
+                (
+                    state.catalog.sort((a, b) => (a.price.current_price > b.price.current_price) ? 1 : ((b.price.current_price > a.price.current_price) ? -1 : 0)),
+                    state.typeCatalog.forEach(array => {
+                        if (array)
+                            array.sort((a, b) => (a.price.current_price > b.price.current_price) ? 1 : ((b.price.current_price > a.price.current_price) ? -1 : 0))
+
+                    })
+                ) :
+                (
+                    state.catalog.sort((a, b) => (a.price.current_price > b.price.current_price) ? -1 : ((b.price.current_price > a.price.current_price) ? 1 : 0)),
+                    state.typeCatalog.forEach(array => {
+                        if (array)
+                            array.sort((a, b) => (a.price.current_price > b.price.current_price) ? -1 : ((b.price.current_price > a.price.current_price) ? 1 : 0))
+
+                    })
+                )
         },
-        updateTypeLibraries(state) {
-            state.libraries.forEach(currentValue => {
-                state.typeLibraries[currentValue.locale.name] ?
-                    state.typeLibraries[currentValue.locale.name].push(currentValue) :
-                    (state.typeLibraries[currentValue.locale.name] = [currentValue]);
+
+        updateTypeCatalog(state) {
+            state.catalog.forEach(currentValue => {
+                state.typeCatalog[currentValue.material] ?
+                    state.typeCatalog[currentValue.material].push(currentValue) :
+                    (state.typeCatalog[currentValue.material] = [currentValue]);
             });
         },
     },
+
     actions: {
-        async fetchLibraries(ctx) {
-            let data = json;
-            ctx.commit("updateLibraries", data);
+        async fetchCatalog(ctx) {
+            try {
+                let data = items;
+                await ctx.commit("updateCatalog", data);
+            } catch (e) {
+                console.log("e")
+            }
         },
-        async fetchLibrarieById(ctx, id) {
-            await ctx.commit("updateLibrarieById", id);
-            return ctx.getters.librarieById ? true : false;
+
+        async fetchMaterial(ctx) {
+            try {
+                let data = materials;
+                await ctx.commit("updateMaterial", data);
+            } catch (e) {
+                console.log("e")
+            }
         },
-        async fetchLibrarieByType(ctx) {
-            ctx.commit("updateTypeLibraries");
+
+        async fetchCatalogByType(ctx) {
+            try {
+                await ctx.commit("updateTypeCatalog");
+            } catch (e) {
+                console.log("e")
+            }
         },
-        sortLibraries(ctx, info) {
-            ctx.commit("sortLibraries", info);
+
+        sortCatalog(ctx, info) {
+            ctx.commit("sortCatalog", info);
         }
     },
     getters: {
-        libraries: s => s.libraries,
-        librarieById: s => s.librarieById,
-        typeNameLibraries: s => Object.keys(s.typeLibraries),
-        librariesByType: s => type => s.typeLibraries[type],
+        catalog: s => s.catalog,
+        materials: s => s.materials,
+        sortPriceType: s => s.sortPriceType,
+        sortMaterialType: s => s.sortMaterialType,
+        catalogByType: s => type => s.typeCatalog[type],
     },
     modules: {}
 })
